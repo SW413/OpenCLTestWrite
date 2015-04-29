@@ -1,6 +1,6 @@
 #include "simpleCL.h"
 
-#define aSizeX 1	
+#define aSizeX 2	
 #define aSizeY 1
 
 #define bSizeX aSizeY
