@@ -1,5 +1,12 @@
 #include "simpleCL.h"
 
+#define aSizeX 1	
+#define aSizeY 1
+
+#define bSizeX aSizeY
+#define bSizeY 1
+
+
 typedef struct{
 	int cols;
 	int rows;
@@ -7,80 +14,80 @@ typedef struct{
 	void* dataStart;
 } matrix;
 
-void printMatrix(matrix ma){
-
+void printMatrix(matrix ma)
+{
+	if(ma.dataStart == NULL) printf("fuck\n");
+	printf("META: %d %d %d\n", ma.cols, ma.rows, ma.cols * ma.rows);
 	for(int i = 0; i < ma.cols*ma.rows; i++){
-	printf("%d %c", ((int*)ma.dataStart)[i], i % ma.cols == ma.cols - 1 ? '\n' : ' ');
-}
-}
-
-int main(){
-sclHard hardware;
-sclSoft software;
-
-matrix ma;
-ma.cols = 4;
-ma.rows = 4;
-ma.dataSize = sizeof(int);
-ma.dataStart = calloc(ma.cols*ma.rows, ma.dataSize);
-
-for (int i = 0; i < ma.rows; ++i)
-{
-	for (int j = 0; j < ma.cols; ++j)
-	{
-		((int*)ma.dataStart)[i*ma.cols+j] = j;
+		//printf("%d", ((int*)ma.dataStart)[i]);
+		printf("%d %c", ((int*)ma.dataStart)[i], i % ma.cols == ma.cols - 1 ? '\n' : ' ');
 	}
 }
 
-matrix mb;
-mb.cols = 5;
-mb.rows = 4;
-mb.dataSize = sizeof(int);
-mb.dataStart = calloc(mb.cols*mb.rows, mb.dataSize);
-
-for (int i = 0; i < mb.rows; ++i)
+matrix makeIntMatrix(int rows, int cols)
 {
-	for (int j = 0; j < mb.cols; ++j)
+	matrix ma;
+	ma.cols = cols;
+	ma.rows = rows;
+	ma.dataSize = sizeof(int);
+	ma.dataStart = calloc(ma.cols*ma.rows, ma.dataSize);
+
+	return ma;
+}
+
+void fillIntMatrix(matrix m)
+{
+	for (int i = 0; i < m.rows; ++i)
 	{
-		((int*)mb.dataStart)[i*mb.cols+j] = j;
+		for (int j = 0; j < m.cols; ++j)
+		{
+			((int*)m.dataStart)[i*m.cols+j] = j;
+		}
 	}
 }
-puts("Matrix A:\n");
-printMatrix(ma);
-puts("Matrix B:\n");
-printMatrix(mb);
+
+int main()
+{
+	/* Declare matrices */
+	matrix ma = makeIntMatrix(aSizeX,aSizeY);
+	matrix mb = makeIntMatrix(bSizeX,bSizeY);
+	matrix result = makeIntMatrix(aSizeX, bSizeY);
+
+	//printMatrix(result);
+
+	fillIntMatrix(mb);
+	fillIntMatrix(ma);
+	fillIntMatrix(result);
+
+	//printMatrix(ma);
+	//printMatrix(mb);
+
+	size_t global_size[2];
+	size_t local_size[2];
+	size_t maDataLength = ma.cols*ma.rows;
+	size_t maDataSize = ma.dataSize*maDataLength;
+	size_t mbDataLength = mb.cols*mb.rows;
+	size_t mbDataSize = mb.dataSize*mbDataLength;
+
+	global_size[0] = aSizeX;
+	local_size[0] = 1;
+	global_size[1] = bSizeY;
+	local_size[1] = 1;
+
+	/* OpenCL Hardware and software*/
+	sclHard hardware;
+	sclSoft software;
+	int found = 0;
+	hardware = sclGetGPUHardware( 0, &found );
+	software = sclGetCLSoftware("MatVecMulKernal.cl", "MatVecMul", hardware);
 
 
-size_t global_size[2];
-size_t local_size[2];
-size_t maDataLength = ma.cols*ma.rows;
-size_t maDataSize = ma.dataSize*maDataLength;
-size_t mbDataLength = mb.cols*mb.rows;
-size_t mbDataSize = mb.dataSize*mbDataLength;
-
-global_size[0] = ma.rows;
-local_size[0] = 1;
-global_size[1] = mb.cols;
-local_size[1] = 1;
-
-int found = 0;
-//allHardware = sclGetAllHardware(&found);
-//hardware = sclGetFastestDevice(allHardware, found);
-    hardware = sclGetCPUHardware( 0, &found );
+	sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %R %a %a %a",
+		maDataSize, ma.dataStart, mbDataSize, mb.dataStart, mbDataSize, result.dataStart,
+		sizeof(int), &ma.rows, sizeof(int), &mb.cols, sizeof(int), &ma.cols);
 
 
-software = sclGetCLSoftware("MatVecMulKernal.cl", "MatVecMul", hardware);
-
-matrix result;
-result.cols = mb.cols;
-result.rows = ma.rows;
-result.dataSize = sizeof(int);
-result.dataStart = calloc(result.cols*result.rows, result.dataSize);
-sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %R %a %a %a",
-	maDataSize, ma.dataStart, mbDataSize, mb.dataStart, mbDataSize, result.dataStart,
-	sizeof(int), &ma.rows, sizeof(int), &mb.cols, sizeof(int), &ma.cols);
-
-//puts("\n new matrix \n");
-printMatrix(result);
-
+	//printMatrix(result);
+	printf("%d\n", ((int*)ma.dataStart)[0]);
+	
 }
