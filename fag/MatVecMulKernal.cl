@@ -6,20 +6,12 @@ __kernel void MatVecMul(const __global int *matrixA
 	//Width A equal to B height
 	int gID = get_global_id(0);
 	int dSize = matrixA->dataSize;
-	int colIndexB = dSize * (matrixB->cols) ;
+	int colIndexB = /*dSize * */(matrixB->cols) ;
 	matrixResult[gID] = 0;
 	for(int k = 0; k < (matrixA->cols); k++){
 		matrixResult[gID] += matrixA[gID + dsize * k] * matrixB[gID + colIndexB * k]
 	}
 }
-
-
-
-
-
-
-
-
 
 /*
 
