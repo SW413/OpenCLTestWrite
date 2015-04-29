@@ -14,9 +14,9 @@ int main() {
    buf2[worksize]=0;
     
    // Get the hardware
-   hardware = sclGetGPUHardware( 0, &found );
+   hardware = sclGetCPUHardware( 0, &found );
    // Get the software
-   software = sclGetCLSoftware( "example.cl", "example", hardware );
+   software = sclGetCLSoftware( "example.c", "example", hardware );
    // Set NDRange dimensions
    global_size[0] = strlen(buf); global_size[1] = 1;
    local_size[0] = global_size[0]; local_size[1] = 1;

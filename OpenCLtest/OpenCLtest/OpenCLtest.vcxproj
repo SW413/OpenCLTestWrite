@@ -23,7 +23,7 @@
     <ClCompile Include="..\Source\theirTest.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\example.cl" />
+    <None Include="..\Source\example.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\simpleCL\simpleCL.h" />
