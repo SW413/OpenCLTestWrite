@@ -1,18 +1,21 @@
 __kernel void MatVecMul(const __global int *matrixA,  
                         const __global int *matrixB,
-                        __global int *matrixResult
+                        __global int *matrixResult,
+                        int rowsA,
+                        int colsB,
+                        int colsA
                         ){
     //Height A equal to B width
     //Width A equal to B height
-    int gID = get_global_id(0);
-    int gID1 = get_global_id(1);
-    int colsB = 5;
-    int rowsA = 4;
-    int colsARowsB = 4;
-    matrixResult[gID*colsB+gID1] = 0;
-    for(int k = 0; k < colsARowsB; k++){
-        matrixResult[gID*colsB+gID1] += matrixA[gID*colsB + k] * matrixB[gID1 + colsARowsB * k];
+    int currentX = get_global_id(0);
+    int currentY = get_global_id(1);
+    int index = currentX * colsB + currentY;
+    //printf("\n[%d, %d] %d = ", currentX, currentY, index);
+    matrixResult[currentX * colsB + currentY] = 0;
+    for(int k = 0; k < colsA; k++){
+        matrixResult[index] += matrixA[currentX * rowsA + k] * matrixB[currentY + colsB * k];
     }
+    //printf("%d\n", matrixResult[currentX * colsB + currentY]);
 }
 
 /*

@@ -15,8 +15,6 @@ void printMatrix(matrix ma){
 }
 
 int main(){
-	
-sclHard* allHardware;
 sclHard hardware;
 sclSoft software;
 
@@ -38,7 +36,7 @@ matrix mb;
 mb.cols = 5;
 mb.rows = 4;
 mb.dataSize = sizeof(int);
-mb.dataStart = calloc(ma.cols*ma.rows, mb.dataSize);
+mb.dataStart = calloc(mb.cols*mb.rows, mb.dataSize);
 
 for (int i = 0; i < mb.rows; ++i)
 {
@@ -60,28 +58,29 @@ size_t maDataSize = ma.dataSize*maDataLength;
 size_t mbDataLength = mb.cols*mb.rows;
 size_t mbDataSize = mb.dataSize*mbDataLength;
 
-global_size[0] = 4;
+global_size[0] = ma.rows;
 local_size[0] = 1;
-global_size[1] = 5;
+global_size[1] = mb.cols;
 local_size[1] = 1;
-int scalar = 2;
 
 int found = 0;
-allHardware = sclGetAllHardware(&found);
-hardware = sclGetFastestDevice(allHardware, found);
-/*
+//allHardware = sclGetAllHardware(&found);
+//hardware = sclGetFastestDevice(allHardware, found);
+    hardware = sclGetCPUHardware( 0, &found );
+
+
 software = sclGetCLSoftware("MatVecMulKernal.cl", "MatVecMul", hardware);
 
 matrix result;
-result.cols = 5;
-result.rows = 4;
+result.cols = mb.cols;
+result.rows = ma.rows;
 result.dataSize = sizeof(int);
 result.dataStart = calloc(result.cols*result.rows, result.dataSize);
-sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %w",
-	maDataSize, ma.dataStart, mbDataSize, mb.dataStart, mbDataSize, result.dataStart);
+sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %R %a %a %a",
+	maDataSize, ma.dataStart, mbDataSize, mb.dataStart, mbDataSize, result.dataStart,
+	sizeof(int), &ma.rows, sizeof(int), &mb.cols, sizeof(int), &ma.cols);
 
-puts("\n new matrix \n");
+//puts("\n new matrix \n");
 printMatrix(result);
 
 }
-*/
