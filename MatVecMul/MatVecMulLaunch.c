@@ -1,11 +1,10 @@
 #include "simpleCL.h"
 
-#define aSizeX 2	
-#define aSizeY 1
+#define aSizeX 3
+#define aSizeY 2
 
 #define bSizeX aSizeY
-#define bSizeY 1
-
+#define bSizeY 3
 
 typedef struct{
 	int cols;
@@ -57,11 +56,24 @@ int main()
 
 	fillIntMatrix(mb);
 	fillIntMatrix(ma);
-	fillIntMatrix(result);
 
-	//printMatrix(ma);
-	//printMatrix(mb);
-
+	printMatrix(ma);
+	printMatrix(mb);
+/*
+	for(int i = 0; i < result.rows; i++) {
+        /* Inner loop for each column,
+         * The first values iterated over are the first ones in the first row
+         * This make the cache use more efficient.
+         *
+        for(int j = 0; j < result.cols; j++) {
+            for(int k = 0; k < mb.rows; k++) {
+            /* this is the m mentioned in the topmost description,
+             * and the number of multiplications made for each index in the resulting matrix *
+                ((int*)result.dataStart)[i * result.cols + j] += ((int*)ma.dataStart)[i * ma.cols + k] * ((int*)mb.dataStart)[k * mb.cols + j];
+            }
+        }
+    }
+*/
 	size_t global_size[2];
 	size_t local_size[2];
 	size_t maDataLength = ma.cols*ma.rows;
@@ -74,20 +86,19 @@ int main()
 	global_size[1] = bSizeY;
 	local_size[1] = 1;
 
-	/* OpenCL Hardware and software*/
+/*	 OpenCL Hardware and software */
 	sclHard hardware;
 	sclSoft software;
 	int found = 0;
-	hardware = sclGetGPUHardware( 0, &found );
+	hardware = sclGetCPUHardware( 0, &found );
 	software = sclGetCLSoftware("MatVecMulKernal.cl", "MatVecMul", hardware);
 
 
-	sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %R %a %a %a",
+	sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %R %a %a %a %a",
 		maDataSize, ma.dataStart, mbDataSize, mb.dataStart, mbDataSize, result.dataStart,
-		sizeof(int), &ma.rows, sizeof(int), &mb.cols, sizeof(int), &ma.cols);
+		sizeof(int), &ma.rows, sizeof(int), &ma.cols, sizeof(int), &mb.rows, sizeof(int), &mb.cols);
 
-
-	//printMatrix(result);
-	printf("%d\n", ((int*)ma.dataStart)[0]);
+	printMatrix(result);
+	//printf("%d\n", ((int*)ma.dataStart)[0]);
 	
 }
