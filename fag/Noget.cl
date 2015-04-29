@@ -29,7 +29,7 @@ __kernel void MatVecMul(const __global int *matrixA
 	int dSize = matrixA->dataSize;
 	int colIndexB = dSize * (matrixB->cols) ;
 	matrixResult[gID] = 0;
-	for(int k = 0; k < (matrixA->rows); k++){
+	for(int k = 0; k < (matrixA->cols); k++){
 		matrixResult[gID] += matrixA[gID + dsize * k] * matrixB[gID + colIndexB * k]
 	}
 }
