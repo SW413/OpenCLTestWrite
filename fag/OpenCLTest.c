@@ -1,5 +1,8 @@
 #include "simpleCL.h"
 
+#pragma OPENCL EXTENSION cl_intel_printf : enable
+#pragma OPENCL EXTENSION cl_amd_printf : enable
+
 typedef struct{
 	int cols;
 	int rows;
@@ -62,8 +65,10 @@ local_size[1] = 1;
 int scalar = 2;
 
 int found = 0;
-allHardware = sclGetAllHardware(&found);
-hardware = sclGetFastestDevice(allHardware, found);
+//allHardware = sclGetAllHardware(&found);
+
+//hardware = sclGetFastestDevice(allHardware, found);
+hardware = sclGetGPUHardware( 0, &found );
 software = sclGetCLSoftware("Noget.cl", "Noget2", hardware);
 
 /*sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%R %R %R", 
