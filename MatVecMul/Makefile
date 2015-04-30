@@ -2,7 +2,7 @@ HOME    = $(PWD)
 EXEC    = $(HOME)/test
 CC      = gcc
 SRC = MatVecMulLaunch.c simpleCL.c 
-CFLAGS  = -std=c99 -Wall -Wextra -pedantic -O3
+CFLAGS  = -std=c99
 
 UNAME := $(shell uname)
 

@@ -1,7 +1,8 @@
 #include "simpleCL.h"
+#include <math.h>
 
 #define aSizeX 3
-#define aSizeY 2
+#define aSizeY 3
 
 #define bSizeX aSizeY
 #define bSizeY 3
@@ -29,6 +30,9 @@ matrix makeIntMatrix(int rows, int cols)
 	ma.cols = cols;
 	ma.rows = rows;
 	ma.dataSize = sizeof(int);
+	int nextCols = pow(2, ceil(log(cols)/log(2)));
+	int nextRows = pow(2, ceil(log(rows)/log(2)));
+	printf("%d %d %d %d\n", ma.cols, nextCols, ma.rows, nextRows);
 	ma.dataStart = calloc(ma.cols*ma.rows, ma.dataSize);
 
 	return ma;
@@ -95,7 +99,7 @@ int main()
 
 
 	sclManageArgsLaunchKernel(hardware, software, global_size, local_size, "%r %r %R %a %a %a %a",
-		maDataSize, ma.dataStart, mbDataSize, mb.dataStart, mbDataSize, result.dataStart,
+		maDataSize, ma.dataStart, mbDataSize, mb.dataStart, aSizeX * bSizeY, result.dataStart,
 		sizeof(int), &ma.rows, sizeof(int), &ma.cols, sizeof(int), &mb.rows, sizeof(int), &mb.cols);
 
 	printMatrix(result);

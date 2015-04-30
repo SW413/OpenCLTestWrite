@@ -13,7 +13,7 @@ __kernel void MatVecMul(const __global int *matrixA,
     int currentY = get_global_id(1);
     // The index in the array.
     int index = currentX * colsA + currentY;
-    //printf("%d\n", index);
+    printf("%d %d %d\n", index, currentX, currentY);
 
     // Iterate over the columns of A to calculate the inner products
     for(int k = 0; k < rowsB; k++){
@@ -23,8 +23,9 @@ __kernel void MatVecMul(const __global int *matrixA,
 
         int aVal = matrixA[currentX * colsA + k];
         int bVal = matrixB[k * colsB + currentY];
-
+        barrier(CLK_GLOBAL_MEM_FENCE);
         matrixResult[index] += aVal * bVal;
-
+        printf("%d %d\n", aVal, bVal);
     }
+    printf("%d\n", matrixResult[index]);
 }
